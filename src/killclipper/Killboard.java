@@ -1,5 +1,6 @@
 package killclipper;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,31 +8,32 @@ import java.util.Comparator;
 public class Killboard implements Serializable {
 
     int returned;
-    public ArrayList<Entry> characters_event_list;
+    @SerializedName("characters_event_list")
+    public ArrayList<Entry> events;
 
     public Killboard() {
-        characters_event_list = new ArrayList<>();
+        events = new ArrayList<>();
     }
 
     public void append(Killboard killboard) {
-        for (Entry e : killboard.characters_event_list) {
-            characters_event_list.add(e);
+        for (Entry e : killboard.events) {
+            events.add(e);
         }
         sort();
     }
 
     public void sort() {
-        characters_event_list.sort(Comparator.naturalOrder());
+        events.sort(Comparator.naturalOrder());
     }
 
     public int size() {
-        return characters_event_list.size();
+        return events.size();
     }
 
     public long nextTimestampAfter(double timeStamp) {
         for (int i = 0; i < size(); i++) {
-            if (characters_event_list.get(i).timestamp > timeStamp) {
-                return characters_event_list.get(i).timestamp;
+            if (events.get(i).timestamp > timeStamp) {
+                return events.get(i).timestamp;
             }
         }
         return 0;
@@ -39,8 +41,8 @@ public class Killboard implements Serializable {
 
     public long lastTimestampBefore(double timeStamp) {
         for (int i = size()-1; i >= 0; i--) {
-            if (characters_event_list.get(i).timestamp < timeStamp) {
-                return characters_event_list.get(i).timestamp;
+            if (events.get(i).timestamp < timeStamp) {
+                return events.get(i).timestamp;
             }
         }
         return 0;

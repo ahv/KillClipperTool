@@ -3,7 +3,6 @@ package killclipper.controller;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.beans.value.ObservableValueBase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -62,7 +61,6 @@ public class SyncController implements Initializable  {
     
     @FXML
     void handlePlayPauseAction(ActionEvent event) {
-        System.out.println("Media Player Status: "  + mediaPlayer.getStatus());
         if (mediaPlayer.getStatus().equals(Status.PAUSED) || mediaPlayer.getStatus().equals(Status.READY)) {
             mediaPlayer.play();
             playPauseButton.setText("||");
@@ -100,40 +98,40 @@ public class SyncController implements Initializable  {
 
     @FXML
     void handlePreviousKillAction(ActionEvent event) {
-        Duration currentTime = mediaPlayer.getCurrentTime();
-        long timeStamp = killboard.lastTimestampBefore(currentTime.toSeconds());
-        long seekTo = timeStamp - MediaModel.getVideo().getStartTimestamp();
-        System.out.println(String.format("Seeking Previous Kill -- current time: %s, last timestamp: &s, seeking to: %s", currentTime.toSeconds(), timeStamp, seekTo));
+        long videoStartTimestamp = MediaModel.getVideo().getStartTimestamp();
+        long playerCurrentTime = (long) mediaPlayer.getCurrentTime().toSeconds();
+        long previousKillTimestamp = killboard.lastTimestampBefore(videoStartTimestamp + playerCurrentTime);
+        long seekTo = previousKillTimestamp - videoStartTimestamp;
         mediaPlayer.seek(Duration.seconds(seekTo));
     }
 
     @FXML
     void handleNextKillAction(ActionEvent event) {
-        Duration currentTime = mediaPlayer.getCurrentTime();
-        long timeStamp = killboard.nextTimestampAfter(currentTime.toSeconds());
-        long seekTo = timeStamp - MediaModel.getVideo().getStartTimestamp();
-        System.out.println(String.format("Seeking Next Kill -- current time: %s, next timestamp: &s, seeking to: %s", currentTime.toSeconds(), timeStamp, seekTo));
+        long videoStartTimestamp = MediaModel.getVideo().getStartTimestamp();
+        long playerCurrentTime = (long) mediaPlayer.getCurrentTime().toSeconds();
+        long nextKillTimestamp = killboard.nextTimestampAfter(videoStartTimestamp + playerCurrentTime);
+        long seekTo = nextKillTimestamp - videoStartTimestamp;
         mediaPlayer.seek(Duration.seconds(seekTo));
     }
     
     @FXML
     void handlePreviousSyncTargetAction(ActionEvent event) {
         syncTargetIndex = (syncTargetIndex - 1) <= 0 ? 0 : syncTargetIndex -1;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.characters_event_list.get(syncTargetIndex).character_id);
+        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
         syncTargetLabel.setText("Target: " + syncTargetName);
     }
 
     @FXML
     void handleNextSyncTargetAction(ActionEvent event) {
-        syncTargetIndex = (syncTargetIndex + 1) > killboard.characters_event_list.size() ? killboard.characters_event_list.size() - 1 : syncTargetIndex + 1;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.characters_event_list.get(syncTargetIndex).character_id);
+        syncTargetIndex = (syncTargetIndex + 1) > killboard.events.size() ? killboard.events.size() - 1 : syncTargetIndex + 1;
+        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
         syncTargetLabel.setText("Target: " + syncTargetName);
     }
 
     @FXML
     void handleSyncAction(ActionEvent event) {
         int videoTime = (int) mediaPlayer.getCurrentTime().toSeconds();
-        long killOffset = killboard.characters_event_list.get(syncTargetIndex).timestamp - MediaModel.getVideo().getStartTimestamp();
+        long killOffset = killboard.events.get(syncTargetIndex).timestamp - MediaModel.getVideo().getStartTimestamp();
         long correction = killOffset - videoTime;
         syncTimeLabel.setText("Sync: " + correction + " seconds");
         MediaModel.getVideo().correctTimeBy(correction);
@@ -168,7 +166,7 @@ public class SyncController implements Initializable  {
         
         // TODO: Refactor
         syncTargetIndex = 0;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.characters_event_list.get(syncTargetIndex).character_id);
+        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
         syncTargetLabel.setText("Target: " + syncTargetName);
         //
         
@@ -202,7 +200,7 @@ public class SyncController implements Initializable  {
         System.out.println("Pane Width: " + paneWidth);
         float span = MediaModel.getVideo().getDuration();
         System.out.println("Span: " + span);
-        for (Entry e : killboard.characters_event_list) {
+        for (Entry e : killboard.events) {
             float pos = e.timestamp - MediaModel.getVideo().getStartTimestamp();
             float spot = (long) ((pos/span) * paneWidth);
             Line line = new Line(spot, 7, spot, 23);
