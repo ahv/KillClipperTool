@@ -62,6 +62,7 @@ public class Clipper {
         }
     }
 
+    // TODO: Probably should be in the ClipWork object
     public class ClipJob {
 
         private final FFmpegBuilder builder;

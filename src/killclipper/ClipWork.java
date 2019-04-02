@@ -15,13 +15,13 @@ public class ClipWork {
         clipSpans = new ArrayList<>();
         int index = 0;
         while (index < killboard.size()) {
-            long clipStart = killboard.events.get(index).timestamp;
+            long clipStart = killboard.entries.get(index).timestamp;
 
-            Killboard.Entry pe = killboard.events.get(index);
+            Killboard.Entry pe = killboard.entries.get(index);
             index++;
             while (index < killboard.size()) {
-                pe = killboard.events.get(index - 1);
-                Killboard.Entry ne = killboard.events.get(index);
+                pe = killboard.entries.get(index - 1);
+                Killboard.Entry ne = killboard.entries.get(index);
                 if (ne.timestamp - pe.timestamp > maximumSecondsBetweenKills) {
                     break;
                 }

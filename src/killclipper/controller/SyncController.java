@@ -56,8 +56,8 @@ public class SyncController implements Initializable  {
     
     @FXML private Button settingsButton;
     @FXML private Button generateButton;
-    @FXML private Button clipButton;
     
+    @FXML private Button fullscreenButton;
     
     @FXML
     void handlePlayPauseAction(ActionEvent event) {
@@ -117,21 +117,21 @@ public class SyncController implements Initializable  {
     @FXML
     void handlePreviousSyncTargetAction(ActionEvent event) {
         syncTargetIndex = (syncTargetIndex - 1) <= 0 ? 0 : syncTargetIndex -1;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
+        String syncTargetName = killboard.entries.get(syncTargetIndex).character.name.first;
         syncTargetLabel.setText("Target: " + syncTargetName);
     }
 
     @FXML
     void handleNextSyncTargetAction(ActionEvent event) {
-        syncTargetIndex = (syncTargetIndex + 1) > killboard.events.size() ? killboard.events.size() - 1 : syncTargetIndex + 1;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
+        syncTargetIndex = (syncTargetIndex + 1) > killboard.entries.size() ? killboard.entries.size() - 1 : syncTargetIndex + 1;
+        String syncTargetName = killboard.entries.get(syncTargetIndex).character.name.first;
         syncTargetLabel.setText("Target: " + syncTargetName);
     }
 
     @FXML
     void handleSyncAction(ActionEvent event) {
         int videoTime = (int) mediaPlayer.getCurrentTime().toSeconds();
-        long killOffset = killboard.events.get(syncTargetIndex).timestamp - MediaModel.getVideo().getStartTimestamp();
+        long killOffset = killboard.entries.get(syncTargetIndex).timestamp - MediaModel.getVideo().getStartTimestamp();
         long correction = killOffset - videoTime;
         syncTimeLabel.setText("Sync: " + correction + " seconds");
         MediaModel.getVideo().correctTimeBy(correction);
@@ -143,17 +143,24 @@ public class SyncController implements Initializable  {
     }
     
     @FXML
-    void handleGenerateClipworkAction(ActionEvent event) {
+    void handleGenerateClipworkAction(ActionEvent event) throws IOException {
+        mediaPlayer.pause();
         ClipWorkModel.generate(killboard);
-        clipButton.setDisable(false);
+        Main.popupView("ClipWorkProgressView");
     }
     
+    /*
     @FXML
     void handleStartClipWorkAction(ActionEvent event) {
         Clipper.instance.queueClibJobs(MediaModel.getVideo(), ClipWorkModel.clipWork);
         Clipper.instance.startClipWork();
-        System.out.println("GG FAGET");
         Main.mainStage.close();
+    }
+    */
+    
+    @FXML
+    void handleFullscreenAction (ActionEvent event) {
+        Main.mainStage.setFullScreen(!Main.mainStage.isFullScreen());
     }
     
     @Override
@@ -164,9 +171,9 @@ public class SyncController implements Initializable  {
         fetchKillboard();
         initializeMediaPlayer();
         
-        // TODO: Refactor
+        // TODO: Refactor setting sync target
         syncTargetIndex = 0;
-        String syncTargetName = ApiCaller.getCharacterNameForId(killboard.events.get(syncTargetIndex).character_id);
+        String syncTargetName = killboard.entries.get(syncTargetIndex).character.name.first;
         syncTargetLabel.setText("Target: " + syncTargetName);
         //
         
@@ -188,8 +195,7 @@ public class SyncController implements Initializable  {
         long endTimestamp = video.getEndTimeStamp();
         killboard = new Killboard();
         for (Settings.PlayerCharacter pc : SettingsModel.getSettings().getCharacters()) {
-            System.out.println("Getting killboard for character: " + pc.getName());
-            killboard.append(ApiCaller.requestKillboard(pc.getId(), startTimestamp, endTimestamp));
+            killboard.append(ApiCaller.getKillboard(pc.getId(), startTimestamp, endTimestamp));
         }
     }
 
@@ -200,7 +206,7 @@ public class SyncController implements Initializable  {
         System.out.println("Pane Width: " + paneWidth);
         float span = MediaModel.getVideo().getDuration();
         System.out.println("Span: " + span);
-        for (Entry e : killboard.events) {
+        for (Entry e : killboard.entries) {
             float pos = e.timestamp - MediaModel.getVideo().getStartTimestamp();
             float spot = (long) ((pos/span) * paneWidth);
             Line line = new Line(spot, 7, spot, 23);

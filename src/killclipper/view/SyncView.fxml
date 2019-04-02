@@ -29,12 +29,12 @@
                   <Button fx:id="nextKillButton" alignment="CENTER" layoutX="185.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleNextKillAction" text="K&gt;" textAlignment="CENTER" />
                   <Button fx:id="previousSyncTargetButton" alignment="CENTER" layoutX="215.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handlePreviousSyncTargetAction" text="&lt;T" textAlignment="CENTER" />
                   <Button fx:id="nextSyncTargetButton" alignment="CENTER" layoutX="245.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleNextSyncTargetAction" text="T&gt;" textAlignment="CENTER" />
-                  <Label fx:id="syncTargetLabel" layoutX="280.0" layoutY="37.0" minHeight="25.0" prefHeight="25.0" prefWidth="159.0" text="Target: FriendlyHenry" />
+                  <Label fx:id="syncTargetLabel" layoutX="280.0" layoutY="37.0" minHeight="25.0" prefHeight="25.0" prefWidth="159.0" text="Target: Unknown" />
                   <Button fx:id="syncButton" alignment="CENTER" layoutX="439.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleSyncAction" text="Sync" textAlignment="CENTER" />
                   <Label fx:id="syncTimeLabel" layoutX="484.0" layoutY="37.0" minHeight="25.0" prefHeight="25.0" prefWidth="98.0" text="Sync: 0 seconds" />
                   <Button fx:id="settingsButton" alignment="CENTER" layoutX="589.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleShowSettingsAction" text="Settings" textAlignment="CENTER" />
                   <Button fx:id="generateButton" alignment="CENTER" layoutX="644.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleGenerateClipworkAction" text="Generate" textAlignment="CENTER" />
-                  <Button fx:id="clipButton" alignment="CENTER" disable="true" layoutX="724.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleStartClipWorkAction" text="Start" textAlignment="CENTER" />
+                  <Button fx:id="fullscreenButton" alignment="CENTER" layoutX="918.0" layoutY="37.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#handleFullscreenAction" text="[ ]" textAlignment="CENTER" />
                </children>
             </Pane>
             <Slider fx:id="scrubber" majorTickUnit="60.0" minorTickCount="5" prefHeight="7.0" prefWidth="780.0" showTickMarks="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />

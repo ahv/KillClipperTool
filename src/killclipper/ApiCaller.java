@@ -18,12 +18,13 @@ public class ApiCaller {
     private class Query {
         // TODO: c:limit=200 will cause trouble in longer/busier videos
         private final static String KILLBOARD = "characters_event/?type=KILL,DEATH&c:limit=200&after=%s&before=%s&character_id=%s";
+        private final static String KILLBOARD_WITH_NAMES = "characters_event/?type=KILL,DEATH&c:limit=200&c:resolve=character_name(name.first)&after=%s&before=%s&character_id=%s";
         private final static String ID_FOR_NAME = "character/?name.first_lower=%s&c:show=character_id";
         private final static String NAME_FOR_ID = "character/?character_id=%s&c:show=name.first";
     }
 
-    public static Killboard requestKillboard(String characterId, long afterTimestamp, long beforeTimestamp) {
-        String query = String.format(Query.KILLBOARD, afterTimestamp, beforeTimestamp, characterId);
+    public static Killboard getKillboard(String characterId, long afterTimestamp, long beforeTimestamp) {
+        String query = String.format(Query.KILLBOARD_WITH_NAMES, afterTimestamp, beforeTimestamp, characterId);
         ResponseEntity<String> responseEntity = REST.getForEntity(API_URI + query, String.class);
         Killboard killboardResponse = GSON.fromJson(responseEntity.getBody(), Killboard.class);
         return killboardResponse;
