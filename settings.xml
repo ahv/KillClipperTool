@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <characters>
+        <character>
+            <enabled>true</enabled>
+            <id>5428629918277563601</id>
+            <name>FriendlyHenry</name>
+        </character>
+        <character>
+            <enabled>true</enabled>
+            <id>5428631729613477649</id>
+            <name>HostileHenry</name>
+        </character>
+        <character>
+            <enabled>true</enabled>
+            <id>5428655647100582833</id>
+            <name>SpaceHenry</name>
+        </character>
+        <character>
+            <enabled>true</enabled>
+            <id>8271049455860263025</id>
+            <name>HenryVTanner</name>
+        </character>
+        <character>
+            <enabled>true</enabled>
+            <id>5428823203443579041</id>
+            <name>HenryVanTern</name>
+        </character>
+    </characters>
+    <videoOutputRootPath>F:\Netbeans Projects\KillClipperUI</videoOutputRootPath>
+    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
+</settings>
