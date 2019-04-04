@@ -1,6 +1,7 @@
 package killclipper;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.bramp.ffmpeg.FFmpeg;
@@ -11,7 +12,8 @@ import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 public class Clipper {
 
     public static Clipper instance = new Clipper();
-    private final String FFMPEG_PATH = "F:\\Netbeans Projects\\KillClipperTool\\ffmpeg";
+    //private final String FFMPEG_PATH = "F:\\Netbeans Projects\\KillClipperTool\\ffmpeg";
+    private final String FFMPEG_PATH = Paths.get("").toAbsolutePath().toString();
     private FFmpeg ffmpeg;
     private FFprobe ffprobe;
     public FFmpegExecutor executor;

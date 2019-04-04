@@ -111,7 +111,7 @@ public class ClipWork {
             job = Clipper.instance.executor.createJob(builder, (Progress prgrs) -> {
                 long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
                 double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
-                System.out.format("Elapsed: %s of %s (%s)", elapsedSeconds, clipDurationSeconds, percentage);
+                //System.out.format("Elapsed: %s of %s (%s)", elapsedSeconds, clipDurationSeconds, percentage);
                 setProgress(percentage);
             });
         }
