@@ -26,7 +26,17 @@
             <id>5428823203443579041</id>
             <name>HenryVanTern</name>
         </character>
+        <character>
+            <enabled>true</enabled>
+            <id>5428823203451696513</id>
+            <name>S3ANC0NNERY</name>
+        </character>
+        <character>
+            <enabled>true</enabled>
+            <id>5428851341651662641</id>
+            <name>LingLingXiaoPing500</name>
+        </character>
     </characters>
     <videoOutputRootPath>F:\Netbeans Projects\KillClipperUI</videoOutputRootPath>
-    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
+    <videoSourceRootPath>F:\ps2-recordings\30 min run</videoSourceRootPath>
 </settings>

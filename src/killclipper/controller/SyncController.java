@@ -17,7 +17,6 @@ import javafx.scene.media.MediaView;
 import javafx.scene.shape.Line;
 import javafx.util.Duration;
 import killclipper.ApiCaller;
-import killclipper.Clipper;
 import killclipper.Killboard;
 import killclipper.Killboard.Entry;
 import killclipper.Main;
@@ -123,7 +122,7 @@ public class SyncController implements Initializable  {
 
     @FXML
     void handleNextSyncTargetAction(ActionEvent event) {
-        syncTargetIndex = (syncTargetIndex + 1) > killboard.entries.size() ? killboard.entries.size() - 1 : syncTargetIndex + 1;
+        syncTargetIndex = (syncTargetIndex + 1) > killboard.entries.size() ? syncTargetIndex : syncTargetIndex + 1;
         String syncTargetName = killboard.entries.get(syncTargetIndex).character.name.first;
         syncTargetLabel.setText("Target: " + syncTargetName);
     }
@@ -145,18 +144,9 @@ public class SyncController implements Initializable  {
     @FXML
     void handleGenerateClipworkAction(ActionEvent event) throws IOException {
         mediaPlayer.pause();
-        ClipWorkModel.generate(killboard);
+        ClipWorkModel.generate(killboard, MediaModel.getVideo());
         Main.popupView("ClipWorkProgressView");
     }
-    
-    /*
-    @FXML
-    void handleStartClipWorkAction(ActionEvent event) {
-        Clipper.instance.queueClibJobs(MediaModel.getVideo(), ClipWorkModel.clipWork);
-        Clipper.instance.startClipWork();
-        Main.mainStage.close();
-    }
-    */
     
     @FXML
     void handleFullscreenAction (ActionEvent event) {

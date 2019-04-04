@@ -2,6 +2,7 @@ package killclipper.model;
 
 import killclipper.ClipWork;
 import killclipper.Killboard;
+import killclipper.Video;
 
 public class ClipWorkModel {
     
@@ -12,7 +13,7 @@ public class ClipWorkModel {
     
     public static ClipWork clipWork;
 
-    public static void generate(Killboard killboard) {
-        clipWork = new ClipWork(killboard, preceedingSeconds, trailingSeconds);
+    public static void generate(Killboard killboard, Video video) {
+        clipWork = new ClipWork(killboard, video, preceedingSeconds, trailingSeconds);
     }
 }

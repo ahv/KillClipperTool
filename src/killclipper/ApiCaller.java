@@ -45,12 +45,9 @@ public class ApiCaller {
     }
 
     class UserIdResponse implements Serializable {
-
         int returned;
         List<Data> character_list;
-
         class Data implements Serializable {
-
             String character_id;
         }
     }

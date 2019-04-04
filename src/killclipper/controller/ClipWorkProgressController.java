@@ -12,9 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import killclipper.ClipWork;
 import killclipper.ClipWork.Span;
-import killclipper.Clipper;
 import killclipper.model.ClipWorkModel;
-import killclipper.model.MediaModel;
 
 public class ClipWorkProgressController {
 
@@ -37,8 +35,7 @@ public class ClipWorkProgressController {
     @FXML
     void handleStartAction(ActionEvent event) {
         startButton.setDisable(true);
-        Clipper.instance.queueClibJobs(MediaModel.getVideo(), clipWork);
-        Clipper.instance.startClipWork();
+        clipWork.start();
         
     }
     
@@ -63,10 +60,7 @@ public class ClipWorkProgressController {
     }
 
     @FXML
-    void initialize() {
-        assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'ClipWorkProgressView.fxml'.";
-        assert startButton != null : "fx:id=\"doneButton\" was not injected: check your FXML file 'ClipWorkProgressView.fxml'.";
-        
+    void initialize() {    
         elementBox.setSpacing(20);
         clipWork = ClipWorkModel.clipWork;
         int i = 0;

@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Main.mainStage = stage;
-        stage.setTitle("Kill Clipper Tool v0.4");
+        stage.setTitle("Kill Clipper Tool v0.5.01");
         changeView("MainView");
         stage.show();
     }
@@ -26,12 +26,10 @@ public class Main extends Application {
         stage.setResizable(false);
         URL resource = Main.class.getResource("view/" + view + ".fxml");
         Parent root = FXMLLoader.load(resource);
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+        stage.setScene(new Scene(root));
         stage.show();
     }
 
-    //TODO: could perhaps do some .class shenanigans here: MainView.class, etc.
     public static void changeView(String view) throws IOException {
         System.out.println("Switching to view: " + view);
         URL resource = Main.class.getResource("view/" + view + ".fxml");
@@ -41,7 +39,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        ApiCaller.getCharacterIdForName("FriendlyHenry");
         launch(args);
     }
 
