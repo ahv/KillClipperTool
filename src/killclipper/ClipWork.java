@@ -1,18 +1,21 @@
 package killclipper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javafx.beans.property.SimpleDoubleProperty;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
-import net.bramp.ffmpeg.progress.ProgressListener;
 
 public class ClipWork {
 
     private final ArrayList<Span> clipSpans;
     private final ArrayList<ClipJob> clipJobs;
+    private final Video video;
 
     public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) {
+        this.video = video;
         int maximumSecondsBetweenKills = preceedingSeconds + trailingSeconds;
         clipSpans = new ArrayList<>();
         int index = 0;
@@ -31,11 +34,11 @@ public class ClipWork {
             }
             clipSpans.add(new Span(clipStart - preceedingSeconds, pe.timestamp + trailingSeconds));
         }
-        
+
         clipJobs = new ArrayList<>();
         int i = 0;
         for (Span span : clipSpans) {
-            clipJobs.add(new ClipJob (video.path(), "clip_" + i, (int) (span.getStartTimestamp() - video.getStartTimestamp()), (int) span.getDurationSeconds()));
+            clipJobs.add(new ClipJob("clip_" + i, (int) (span.getStartTimestamp() - video.getStartTimestamp()), (int) span.getDurationSeconds()));
             i++;
         }
     }
@@ -44,6 +47,12 @@ public class ClipWork {
         return clipSpans;
     }
 
+    public List<ClipJob> getClipJobs() {
+        return clipJobs;
+    }
+
+    // TODO: Have x ClipJobs running at the same time; start the next one as one finishes,
+    // once all are done call a allJobsDone listener, set a jobs done listener as start parameter perhaps
     public void start() {
         for (ClipJob cj : clipJobs) {
             cj.start();
@@ -67,7 +76,7 @@ public class ClipWork {
         public long getEndTimestamp() {
             return endTimeStamp;
         }
-        
+
         public long getDurationSeconds() {
             return endTimeStamp - startTimeStamp;
         }
@@ -77,21 +86,20 @@ public class ClipWork {
             return String.format("Span: %s -- %s (%s)", startTimeStamp, endTimeStamp, getDurationSeconds());
         }
     }
-    
-       // TODO: Probably should be in the ClipWork object
-    public class ClipJob implements ProgressListener {
 
-        private final FFmpegBuilder builder;
-        private final FFmpegJob job;
+    public class ClipJob {
+
         private final String clipName;
         private final int clipDurationSeconds;
-        
+        private final FFmpegJob job;
+        private final SimpleDoubleProperty progress;
 
-        public ClipJob(String videoPath, String outputClipName, int videoStartOffsetSeconds, int clipDurationSeconds) {
+        public ClipJob(String outputClipName, int videoStartOffsetSeconds, int clipDurationSeconds) {
             this.clipDurationSeconds = clipDurationSeconds;
             this.clipName = outputClipName;
-            builder = new FFmpegBuilder()
-                    .setInput(videoPath)
+            this.progress = new SimpleDoubleProperty(0.0);
+            FFmpegBuilder builder = new FFmpegBuilder()
+                    .setInput(video.path())
                     .overrideOutputFiles(true)
                     .setStartOffset(videoStartOffsetSeconds, TimeUnit.SECONDS)
                     .addOutput(outputClipName + ".mp4")
@@ -100,25 +108,40 @@ public class ClipWork {
                     .setAudioCodec("copy")
                     //.setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
                     .done();
-            job = Clipper.instance.executor.createJob(builder, this);
+            job = Clipper.instance.executor.createJob(builder, (Progress prgrs) -> {
+                long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
+                double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
+                System.out.format("Elapsed: %s of %s (%s)", elapsedSeconds, clipDurationSeconds, percentage);
+                setProgress(percentage);
+            });
         }
 
-        private FFmpegBuilder getBuilder() {
-            return builder;
+        public double getProgress() {
+            return progress.get();
         }
 
-        public FFmpegJob getJob() {
-            return job;
+        public SimpleDoubleProperty getProgressProperty() {
+            return progress;
         }
-        
+
+        public void setProgress(double percent) {
+            progress.set(percent);
+        }
+
+        public String getClipName() {
+            return clipName;
+        }
+
+        public int getClipDurationSeconds() {
+            return clipDurationSeconds;
+        }
+
         public void start() {
-            job.run();
+            new Thread(() -> {
+                job.run();
+                setProgress(1.0);
+            }).start();
         }
 
-        @Override
-        public void progress(Progress progress) {
-            double percentage = (progress.out_time_ns*100) / clipDurationSeconds;
-            System.out.println("Clip " + clipName + " progress: " + percentage);
-        }
     }
 }
