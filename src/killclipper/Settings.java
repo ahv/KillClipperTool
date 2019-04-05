@@ -26,6 +26,10 @@ public class Settings {
     private String videoSourceRootPath;
     private String videoOutputRootPath;
 
+    private int preceedingSeconds;
+    private int trailingSeconds;
+    private boolean createCombinedVideo;
+
     @XmlElementWrapper
     @XmlElement(name = "character")
     private final ArrayList<PlayerCharacter> characters;
@@ -34,8 +38,11 @@ public class Settings {
         videoSourceRootPath = Paths.get("").toAbsolutePath().toString();
         videoOutputRootPath = Paths.get("").toAbsolutePath().toString();
         characters = new ArrayList<>();
+        createCombinedVideo = false;
+        preceedingSeconds = 5;
+        trailingSeconds = 5;
     }
-    
+
     public void save() {
         Settings.save(this);
     }
@@ -60,6 +67,30 @@ public class Settings {
     @XmlElement
     public void setVideoSourceRootPath(String videoSourcePath) {
         this.videoSourceRootPath = videoSourcePath;
+    }
+
+    public void setCreateCombinedVideo(boolean option) {
+        this.createCombinedVideo = option;
+    }
+
+    public void setPreceedingSeconds(int seconds) {
+        this.preceedingSeconds = seconds;
+    }
+
+    public boolean isCreateCombinedVideo() {
+        return createCombinedVideo;
+    }
+
+    public void setTrailingSeconds(int seconds) {
+        this.trailingSeconds = seconds;
+    }
+
+    public int getPreceedingSeconds() {
+        return preceedingSeconds;
+    }
+
+    public int getTrailingSeconds() {
+        return trailingSeconds;
     }
 
     @XmlRootElement
@@ -104,11 +135,11 @@ public class Settings {
         public void setEnabled(boolean enabled) {
             this.enabled.set(enabled);
         }
-        
+
         @Override
-        public String toString(){
+        public String toString() {
             return String.format("PlayerCharacter name: %s, id: %s, enabled: %s", getName(), getId(), isEnabled());
-            
+
         }
     }
 

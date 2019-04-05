@@ -12,18 +12,36 @@ import net.bramp.ffmpeg.progress.Progress;
 
 public class ClipWork {
 
+    private final Video video;
     private final ArrayList<Span> clipSpans;
     private final ArrayList<ClipJob> clipJobs;
-    private final Video video;
+    private final ConcurrentLinkedDeque<ClipJob> queuedClipJobs = new ConcurrentLinkedDeque<>();
+    private final ClipJobDoneLambda clipJobDoneFunction = (ClipJob doneJob) -> {
+        queuedClipJobs.remove(doneJob);
+        if (queuedClipJobs.size() > 0) {
+            startNextClipJob();
+        } else {
+            // TODO: Listener for all jobs done as parameter
+            System.out.println("ALL CLIP JOBS DONE!");
+        }
+    };
+
+    private interface ClipJobDoneLambda {
+        abstract void execute(ClipJob clipJob);
+    }
 
     public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) {
         this.video = video;
+        clipSpans = createClipSpans(killboard, preceedingSeconds, trailingSeconds);
+        clipJobs = createClipJobs(clipSpans);
+    }
+
+    private ArrayList<Span> createClipSpans(Killboard killboard, int preceedingSeconds, int trailingSeconds) {
+        ArrayList<Span> spans = new ArrayList<>();
         int maximumSecondsBetweenKills = preceedingSeconds + trailingSeconds;
-        clipSpans = new ArrayList<>();
         int index = 0;
         while (index < killboard.size()) {
             long clipStart = killboard.entries.get(index).timestamp;
-
             Killboard.Entry pe = killboard.entries.get(index);
             index++;
             while (index < killboard.size()) {
@@ -34,15 +52,9 @@ public class ClipWork {
                 }
                 index++;
             }
-            clipSpans.add(new Span(clipStart - preceedingSeconds, pe.timestamp + trailingSeconds));
+            spans.add(new Span(clipStart - preceedingSeconds, pe.timestamp + trailingSeconds));
         }
-
-        clipJobs = new ArrayList<>();
-        int i = 0;
-        for (Span span : clipSpans) {
-            clipJobs.add(new ClipJob("clip_" + i, (int) (span.getStartTimestamp() - video.getStartTimestamp()), (int) span.getDurationSeconds()));
-            i++;
-        }
+        return spans;
     }
 
     public ArrayList<Span> getSpans() {
@@ -52,17 +64,6 @@ public class ClipWork {
     public List<ClipJob> getClipJobs() {
         return clipJobs;
     }
-
-    private ConcurrentLinkedDeque<ClipJob> queuedClipJobs = new ConcurrentLinkedDeque<>();
-    private ClipJobDoneLambda clipJobDoneFunction = (ClipJob doneJob) -> {
-        queuedClipJobs.remove(doneJob);
-        if (queuedClipJobs.size() > 0) {
-            startNextClipJob();
-        } else {
-            // TODO: Listener for all jobs done as parameter
-            System.out.println("ALL CLIP JOBS DONE!");
-        }
-    };
 
     public void startWork() {
         for (ClipJob cj : clipJobs) {
@@ -75,13 +76,17 @@ public class ClipWork {
         queuedClipJobs.pop().start(clipJobDoneFunction);
     }
 
-    private interface ClipJobDoneLambda {
-
-        abstract void execute(ClipJob clipJob);
+    private ArrayList<ClipJob> createClipJobs(ArrayList<Span> spans) {
+        ArrayList<ClipJob> jobs = new ArrayList<>();
+        int i = 0;
+        for (Span span : spans) {
+            jobs.add(new ClipJob("clip_" + i, (int) (span.getStartTimestamp() - video.getStartTimestamp()), (int) span.getDurationSeconds()));
+            i++;
+        }
+        return jobs;
     }
 
     public class Span {
-
         private final long startTimeStamp;
         private final long endTimeStamp;
 

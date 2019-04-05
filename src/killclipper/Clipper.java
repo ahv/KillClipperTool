@@ -12,8 +12,7 @@ import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 public class Clipper {
 
     public static Clipper instance = new Clipper();
-    private final String FFMPEG_PATH = "F:\\Netbeans Projects\\KillClipperTool\\ffmpeg";
-    //private final String FFMPEG_PATH = Paths.get("").toAbsolutePath().toString(); // Distribution version
+    private final String FFMPEG_PATH = Paths.get("").toAbsolutePath().toString() + "\\ffmpeg";
     private FFmpeg ffmpeg;
     private FFprobe ffprobe;
     public FFmpegExecutor executor;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -10,34 +11,40 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<Pane prefHeight="77.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="killclipper.controller.ClipWorkSettingsController">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="killclipper.controller.ClipWorkSettingsController">
    <children>
-      <VBox layoutX="5.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="71.0" prefWidth="190.0">
+      <Pane prefHeight="150.0" prefWidth="200.0" AnchorPane.topAnchor="0.0">
          <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="20.0" prefWidth="307.0">
+            <VBox layoutX="5.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="71.0" prefWidth="190.0">
                <children>
-                  <Label prefHeight="14.0" prefWidth="150.0" text="Preceeding Seconds" />
-                  <Region prefHeight="22.0" prefWidth="20.0" HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="preceedingSecondsField" alignment="CENTER_RIGHT" prefHeight="22.0" prefWidth="80.0" text="5" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="20.0" prefWidth="307.0">
-               <children>
-                  <Label prefHeight="14.0" prefWidth="150.0" text="Trailing Seconds" />
-                  <Region prefHeight="22.0" prefWidth="20.0" HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="trailingSecondsField" alignment="CENTER_RIGHT" prefHeight="22.0" prefWidth="80.0" text="5" />
-               </children>
-            </HBox>
-            <Pane prefHeight="24.0" prefWidth="190.0">
-               <children>
-                  <AnchorPane prefHeight="24.0" prefWidth="190.0">
+                  <HBox alignment="CENTER_LEFT" prefHeight="20.0" prefWidth="307.0">
                      <children>
-                        <Button fx:id="okButton" mnemonicParsing="false" onAction="#handleOkAction" text="Ok" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                        <TextField fx:id="preceedingSecondsField" alignment="CENTER_RIGHT" prefHeight="22.0" prefWidth="40.0" text="5" />
+                        <Region prefHeight="22.0" prefWidth="6.0" HBox.hgrow="ALWAYS" />
+                        <Label prefHeight="14.0" prefWidth="150.0" text="Preceeding Seconds" />
                      </children>
-                  </AnchorPane>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="20.0" prefWidth="307.0">
+                     <children>
+                        <TextField fx:id="trailingSecondsField" alignment="CENTER_RIGHT" prefHeight="22.0" prefWidth="40.0" text="5" />
+                        <Region prefHeight="22.0" prefWidth="6.0" HBox.hgrow="ALWAYS" />
+                        <Label prefHeight="14.0" prefWidth="150.0" text="Trailing Seconds" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="32.0" prefHeight="20.0" prefWidth="307.0">
+                     <children>
+                        <Region prefHeight="20.0" prefWidth="22.0" />
+                        <CheckBox fx:id="combinedVideoCheck" mnemonicParsing="false" onAction="#handleToggleCombinedVideoAction" text="Create combined video" />
+                     </children>
+                  </HBox>
                </children>
-            </Pane>
+            </VBox>
          </children>
-      </VBox>
+      </Pane>
+      <AnchorPane prefHeight="31.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <Button fx:id="okButton" mnemonicParsing="false" onAction="#handleOkAction" text="Ok" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children>
+      </AnchorPane>
    </children>
-</Pane>
+</AnchorPane>
