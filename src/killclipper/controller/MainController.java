@@ -93,7 +93,7 @@ public class MainController implements Initializable {
         MediaModel.setMedia(media);
         MediaPlayer mp = new MediaPlayer(media);
         videoFilePreview.setMediaPlayer(mp);
-        mp.seek(Duration.seconds(15));
+        mp.seek(Duration.seconds(30));
         mp.volumeProperty().set(0);
         mp.play();
         syncViewButton.setDisable(false);

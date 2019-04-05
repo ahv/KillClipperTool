@@ -37,6 +37,6 @@
             <name>LingLingXiaoPing500</name>
         </character>
     </characters>
-    <videoOutputRootPath>F:\Netbeans Projects\KillClipperUI</videoOutputRootPath>
-    <videoSourceRootPath>F:\ps2-recordings\30 min run</videoSourceRootPath>
+    <videoOutputRootPath>F:\Netbeans Projects\KillClipperTool</videoOutputRootPath>
+    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
 </settings>

@@ -2,6 +2,7 @@ package killclipper;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,8 +15,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        System.out.println("Working directory: " + Paths.get("").toAbsolutePath().toString());
         Main.mainStage = stage;
-        stage.setTitle("Kill Clipper Tool v0.5.01");
+        // TODO: Automate versioning
+        stage.setTitle("Kill Clipper Tool v0.6.00");
         changeView("MainView");
         stage.show();
     }

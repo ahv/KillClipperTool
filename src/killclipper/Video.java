@@ -26,6 +26,7 @@ public class Video {
         }
         try {
             format = Clipper.instance.probe(file.getAbsolutePath()).getFormat();
+            // TODO: Accept other filename formats
             DateTimeFormatter fileNameDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss Z");
             OffsetDateTime offsetDateTime = OffsetDateTime.parse(FilenameUtils.removeExtension(file.getName()), fileNameDateFormat);
             ZonedDateTime videoStartTime = offsetDateTime.atZoneSameInstant(ZoneOffset.UTC);

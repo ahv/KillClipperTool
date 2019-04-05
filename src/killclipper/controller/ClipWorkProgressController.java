@@ -37,7 +37,7 @@ public class ClipWorkProgressController {
     @FXML
     void handleStartAction(ActionEvent event) {
         startButton.setDisable(true);
-        clipWork.start();
+        clipWork.startWork();
         
     }
     

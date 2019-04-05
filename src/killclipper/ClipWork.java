@@ -2,8 +2,10 @@ package killclipper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import javafx.beans.property.SimpleDoubleProperty;
+import killclipper.model.SettingsModel;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
@@ -53,10 +55,33 @@ public class ClipWork {
 
     // TODO: Have x ClipJobs running at the same time; start the next one as one finishes,
     // once all are done call a allJobsDone listener, set a jobs done listener as start parameter perhaps
-    public void start() {
-        for (ClipJob cj : clipJobs) {
-            cj.start();
+    private ConcurrentLinkedDeque<ClipJob> queuedClipJobs = new ConcurrentLinkedDeque<>();
+    private ClipJobDoneLambda clipJobDoneFunction = (ClipJob doneJob) -> {
+        queuedClipJobs.remove(doneJob);
+        if (queuedClipJobs.size() > 0) {
+            startNextClipJob();
+        } else {
+            // TODO: All jobs done
+            System.out.println("ALL CLIP JOBS DONE!");
         }
+    };
+
+    // TODO: Listener for all jobs done as parameter
+    public void startWork() {
+        for (ClipJob cj : clipJobs) {
+            queuedClipJobs.add(cj);
+        }
+        // TODO: Start multiple jobs simultaneously?
+        startNextClipJob();
+    }
+
+    private void startNextClipJob() {
+        queuedClipJobs.pop().start(clipJobDoneFunction);
+    }
+
+    private interface ClipJobDoneLambda {
+
+        abstract void execute(ClipJob clipJob);
     }
 
     public class Span {
@@ -102,7 +127,7 @@ public class ClipWork {
                     .setInput(video.path())
                     .overrideOutputFiles(true)
                     .setStartOffset(videoStartOffsetSeconds, TimeUnit.SECONDS)
-                    .addOutput(outputClipName + ".mp4")
+                    .addOutput(SettingsModel.getSettings().getVideoOutputRootPath() + "\\" + outputClipName + ".mp4")
                     .setDuration(clipDurationSeconds, TimeUnit.SECONDS)
                     .setVideoCodec("copy")
                     .setAudioCodec("copy")
@@ -136,10 +161,11 @@ public class ClipWork {
             return clipDurationSeconds;
         }
 
-        public void start() {
+        public void start(ClipJobDoneLambda expression) {
             new Thread(() -> {
                 job.run();
                 setProgress(1.0);
+                expression.execute(this);
             }).start();
         }
 

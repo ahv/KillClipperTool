@@ -36,6 +36,7 @@ public class Killboard implements Serializable {
                 return entries.get(i).timestamp;
             }
         }
+         // TODO: Could also return the last item, right now the video will return to start
         return 0;
     }
 
@@ -80,11 +81,5 @@ public class Killboard implements Serializable {
             Entry e = (Entry) o;
             return timestamp > e.timestamp ? 1 : -1;
         }
-
-        @Override
-        public String toString() {
-            return "" + timestamp;
-        }
     }
-
 }
