@@ -9,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -82,7 +81,7 @@ public class MainController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open video");
         fileChooser.setInitialDirectory(new File(SettingsModel.getSettings().getVideoSourceRootPath()));
-        File f = fileChooser.showOpenDialog(((Node)event.getSource()).getScene().getWindow());
+        File f = fileChooser.showOpenDialog(Main.mainStage);
         if (f == null) return;
         SettingsModel.getSettings().setVideoSourceRootPath(f.getParent());
         SettingsModel.getSettings().save();

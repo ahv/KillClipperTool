@@ -53,25 +53,21 @@ public class ClipWork {
         return clipJobs;
     }
 
-    // TODO: Have x ClipJobs running at the same time; start the next one as one finishes,
-    // once all are done call a allJobsDone listener, set a jobs done listener as start parameter perhaps
     private ConcurrentLinkedDeque<ClipJob> queuedClipJobs = new ConcurrentLinkedDeque<>();
     private ClipJobDoneLambda clipJobDoneFunction = (ClipJob doneJob) -> {
         queuedClipJobs.remove(doneJob);
         if (queuedClipJobs.size() > 0) {
             startNextClipJob();
         } else {
-            // TODO: All jobs done
+            // TODO: Listener for all jobs done as parameter
             System.out.println("ALL CLIP JOBS DONE!");
         }
     };
 
-    // TODO: Listener for all jobs done as parameter
     public void startWork() {
         for (ClipJob cj : clipJobs) {
             queuedClipJobs.add(cj);
         }
-        // TODO: Start multiple jobs simultaneously?
         startNextClipJob();
     }
 
@@ -136,7 +132,6 @@ public class ClipWork {
             job = Clipper.instance.executor.createJob(builder, (Progress prgrs) -> {
                 long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
                 double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
-                //System.out.format("Elapsed: %s of %s (%s)", elapsedSeconds, clipDurationSeconds, percentage);
                 setProgress(percentage);
             });
         }

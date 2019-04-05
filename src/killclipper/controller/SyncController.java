@@ -1,5 +1,6 @@
 package killclipper.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -16,6 +17,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.shape.Line;
+import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
 import killclipper.ApiCaller;
 import killclipper.Killboard;
@@ -68,8 +70,7 @@ public class SyncController implements Initializable  {
         } else {
             mediaPlayer.pause();
             playPauseButton.setText(">");
-        }
-        
+        }   
     }
     
     //<editor-fold defaultstate="collapsed" desc="ActionHandlers">
@@ -147,6 +148,10 @@ public class SyncController implements Initializable  {
             @FXML
             void handleGenerateClipworkAction(ActionEvent event) throws IOException {
                 mediaPlayer.pause();
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File dir = directoryChooser.showDialog(Main.mainStage);
+                if (dir == null) return;
+                SettingsModel.getSettings().setVideoOutputRootPath(dir.getAbsolutePath());
                 ClipWorkModel.generate(killboard, MediaModel.getVideo());
                 Main.popupView("ClipWorkProgressView");
             }

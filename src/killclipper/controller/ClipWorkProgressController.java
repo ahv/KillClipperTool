@@ -1,5 +1,6 @@
 package killclipper.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -12,18 +13,26 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import killclipper.ClipWork;
 import killclipper.ClipWork.ClipJob;
+import killclipper.Main;
 import killclipper.model.ClipWorkModel;
+import killclipper.model.SettingsModel;
 
-public class ClipWorkProgressController {
-
+public class ClipWorkProgressController extends PopupViewController {
 
     @FXML
     private VBox elementBox;
-    
+
     @FXML
     private Button cancelButton;
+
+    @FXML
+    private Button outputFolderButton;
+
+    @FXML
+    private Label outputFolderPathLabel;
 
     @FXML
     private Button startButton;
@@ -31,55 +40,74 @@ public class ClipWorkProgressController {
 
     @FXML
     void handleCancelAction(ActionEvent event) {
+        close(event);
+    }
 
+    // TODO: Path is already written into the ClipJobs at ClipWork object creation (which happens in the SyncView)
+    // so this one does nothing!
+    @FXML
+    void handleOutputFolderAction(ActionEvent event) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        // TODO: Doesn't actually belong to main stage! Add some stage getter to PopupViewController
+        File dir = directoryChooser.showDialog(Main.mainStage);
+        if (dir == null) {
+            return;
+        }
+        SettingsModel.getSettings().setVideoOutputRootPath(dir.getAbsolutePath());
+        outputFolderPathLabel.setText(dir.getAbsolutePath());
     }
 
     @FXML
     void handleStartAction(ActionEvent event) {
         startButton.setDisable(true);
         clipWork.startWork();
-        
-    }
-    
-    private Pane createClipJobElement(ClipJob clipJob) {
-        Label elementLabel = new Label(clipJob.getClipName());
-        elementLabel.prefWidth(81);
-        elementLabel.prefHeight(20);
-        elementLabel.minHeight(20);
-        ProgressBar elementProgress = new ProgressBar();
-        elementProgress.progressProperty().unbind();
-        clipJob.getProgressProperty().addListener((observable) -> {
-            SimpleDoubleProperty v = (SimpleDoubleProperty) observable;
-            elementProgress.setProgress(v.get());
-        });
-        //elementProgress.progressProperty().bind(clipJob.progress);
-        elementProgress.prefWidth(190);
-        elementProgress.minWidth(190);
-        elementProgress.prefHeight(20);
-        elementProgress.minHeight(20);
-        elementProgress.setLayoutX(85);
-        elementProgress.setStyle("-fx-accent: green;");
-        elementProgress.setProgress(0);
-        Pane elementPane = new Pane(elementLabel, elementProgress);
-        elementPane.prefWidth(282);
-        elementPane.prefHeight(25);
-        elementPane.minHeight(25);
-        
-        return elementPane;
     }
 
     @FXML
-    void initialize() {    
+    void initialize() {
         clipWork = ClipWorkModel.clipWork;
+        initializeClipElements();
+        outputFolderPathLabel.setText(SettingsModel.getSettings().getVideoOutputRootPath());
+    }
+
+    void initializeClipElements() {
         List<Node> elements = new ArrayList<>();
         for (ClipJob cj : clipWork.getClipJobs()) {
             elements.add(createClipJobElement(cj));
         }
-        
         elementBox.getChildren().addAll(elements);
         // Hax to get the scroll pane to show the last element
         Region r = new Region();
         r.setMinHeight(20);
         elementBox.getChildren().add(r);
+    }
+
+    private Pane createClipJobElement(ClipJob clipJob) {
+        // TODO: Set widths based on parent
+        double parentWidth = elementBox.getWidth();
+        Label clipNameLabel = new Label(clipJob.getClipName());
+        clipNameLabel.prefWidth(90);
+        clipNameLabel.prefHeight(20);
+        Label durationLabel = new Label(clipJob.getClipDurationSeconds() + " seconds");
+        durationLabel.prefWidth(90);
+        durationLabel.prefHeight(20);
+        durationLabel.setLayoutX(95);
+        ProgressBar jobProgressBar = new ProgressBar(0);
+        jobProgressBar.progressProperty().unbind();
+        clipJob.getProgressProperty().addListener((observable) -> {
+            // Platform.runLater(() -> ... ); this?
+            SimpleDoubleProperty v = (SimpleDoubleProperty) observable;
+            jobProgressBar.setProgress(v.get());
+        });
+        jobProgressBar.prefWidth(300);
+        jobProgressBar.prefHeight(20);
+        jobProgressBar.setLayoutX(220);
+        jobProgressBar.setStyle("-fx-accent: green;");
+        Pane elementPane = new Pane(clipNameLabel, durationLabel, jobProgressBar);
+        elementPane.prefWidth(parentWidth);
+        elementPane.prefHeight(25);
+        elementPane.minHeight(25);
+
+        return elementPane;
     }
 }
