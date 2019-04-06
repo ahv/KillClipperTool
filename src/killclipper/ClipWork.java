@@ -136,7 +136,7 @@ public class ClipWork {
     public abstract class ClipJob {
 
         String clipName;
-        SimpleDoubleProperty progress;
+        public SimpleDoubleProperty progress;
         FFmpegJob job;
 
         private ClipJob(String clipName) {
@@ -218,7 +218,7 @@ public class ClipWork {
             clipDurationSeconds = ts;
             printWriter.close();
             fileWriter.close();
-            this.job = Clipper.createCombineJob(Main.workingDirectory + "\\cliplist.txt", clipOutputPath, (prgrs) -> {
+            this.job = Clipper.createCombineJob(Main.workingDirectory + "\\cliplist.txt", clipOutputPath + "\\combined." + fileFormat, (prgrs) -> {
                 if (prgrs.isEnd()) {
                     setProgress(1);
                 } else {
@@ -227,7 +227,7 @@ public class ClipWork {
                     setProgress(percentage);
                 }
             });
-            Files.deleteIfExists(Paths.get("", "cliplist.txt"));
+            //Files.deleteIfExists(Paths.get("", "cliplist.txt"));
         }
 
         @Override

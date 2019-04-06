@@ -35,7 +35,7 @@ public class Clipper {
                 .setVideoCodec("copy")
                 .setAudioCodec("copy")
                 .done();
-        return Clipper.executor.createJob(builder);
+        return Clipper.executor.createJob(builder, progressListener);
     }
 
     public static FFmpegJob createCombineJob(String clipListFilePath, String outputFilePath, ProgressListener progressListener) {
