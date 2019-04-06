@@ -18,7 +18,7 @@ public class Main extends Application {
         System.out.println("Working directory: " + Paths.get("").toAbsolutePath().toString());
         Main.mainStage = stage;
         // TODO: Automate versioning
-        stage.setTitle("Kill Clipper Tool v0.6.00");
+        stage.setTitle("Kill Clipper Tool v0.7.00");
         changeView("MainView");
         stage.show();
     }

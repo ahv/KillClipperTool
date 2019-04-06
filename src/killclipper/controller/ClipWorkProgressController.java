@@ -76,6 +76,7 @@ public class ClipWorkProgressController extends PopupViewController {
             elements.add(createClipJobElement(cj));
         }
         elementBox.getChildren().addAll(elements);
+        
         // Hax to get the scroll pane to show the last element
         Region r = new Region();
         r.setMinHeight(20);

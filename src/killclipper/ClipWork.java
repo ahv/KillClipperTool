@@ -1,15 +1,23 @@
 package killclipper;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleDoubleProperty;
 import killclipper.model.SettingsModel;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
 
+// TODO: This class has gotten a little bloated, break it up
 public class ClipWork {
 
     private final Video video;
@@ -21,13 +29,42 @@ public class ClipWork {
         if (queuedClipJobs.size() > 0) {
             startNextClipJob();
         } else {
-            // TODO: Listener for all jobs done as parameter
-            System.out.println("ALL CLIP JOBS DONE!");
+            allClipJobsDoneEvent();
         }
     };
 
     private interface ClipJobDoneLambda {
+
         abstract void execute(ClipJob clipJob);
+    }
+
+    private void startCombinedClipJob() {
+        System.out.println("Starting combined clip job");
+        try {
+            FileWriter fileWriter = new FileWriter("cliplist.txt");
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            String clipOutputPath = SettingsModel.getSettings().getVideoOutputRootPath();
+            // TODO: Support for other fileformats
+            String fileFormat = "mp4";
+            for (ClipJob cj : clipJobs) {
+                printWriter.printf("file '%s\\%s.%s'\n", clipOutputPath, cj.clipName, fileFormat);
+            }
+            printWriter.close();
+            fileWriter.close();
+            Clipper.Combine(Paths.get("").toAbsolutePath().toString());
+            Files.deleteIfExists(Paths.get("", "cliplist.txt"));
+            
+        } catch (IOException ex) {
+            Logger.getLogger(ClipWork.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void allClipJobsDoneEvent() {
+        if (SettingsModel.getSettings().isCreateCombinedVideo()) {
+            startCombinedClipJob();
+        } else {
+            // TODO: onClipWorkDone
+        }
     }
 
     public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) {
@@ -87,6 +124,7 @@ public class ClipWork {
     }
 
     public class Span {
+
         private final long startTimeStamp;
         private final long endTimeStamp;
 
@@ -168,6 +206,5 @@ public class ClipWork {
                 expression.execute(this);
             }).start();
         }
-
     }
 }

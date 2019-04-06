@@ -39,7 +39,7 @@
     </characters>
     <createCombinedVideo>true</createCombinedVideo>
     <preceedingSeconds>8</preceedingSeconds>
-    <trailingSeconds>7</trailingSeconds>
-    <videoOutputRootPath>F:\Netbeans Projects\KillClipperTool</videoOutputRootPath>
-    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
+    <trailingSeconds>4</trailingSeconds>
+    <videoOutputRootPath>C:\Users\henry\Desktop\cc</videoOutputRootPath>
+    <videoSourceRootPath>F:\ps2-recordings\30 min run</videoSourceRootPath>
 </settings>
