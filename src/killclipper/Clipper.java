@@ -2,52 +2,56 @@ package killclipper;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.concurrent.Executor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import killclipper.model.SettingsModel;
+import java.util.concurrent.TimeUnit;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
+import net.bramp.ffmpeg.progress.ProgressListener;
 
 public class Clipper {
 
-    public static Clipper instance = new Clipper();
-    private final String FFMPEG_PATH = Paths.get("").toAbsolutePath().toString() + "\\ffmpeg";
-    private FFmpeg ffmpeg;
-    private FFprobe ffprobe;
-    public FFmpegExecutor executor;
+    private final static String STATIC_FFMPEG_PATH = Paths.get("").toAbsolutePath().toString() + "\\ffmpeg";
+    private static FFmpeg ffmpeg;
+    private static FFprobe probe;
+    private static FFmpegExecutor executor;
 
-    private Clipper() {
-        try {
-            ffmpeg = new FFmpeg(FFMPEG_PATH + "\\ffmpeg.exe");
-            ffprobe = new FFprobe(FFMPEG_PATH + "\\ffprobe.exe");
-            executor = new FFmpegExecutor(ffmpeg, ffprobe);
-        } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public static void initialize() throws IOException {
+        ffmpeg = new FFmpeg(STATIC_FFMPEG_PATH + "\\ffmpeg.exe");
+        probe = new FFprobe(STATIC_FFMPEG_PATH + "\\ffprobe.exe");
+        executor = new FFmpegExecutor(ffmpeg, probe);
+
     }
 
-    public static void Combine(String pathToCliplist) {
-        System.out.println("Doing combined clip job");
-        //ffmpeg -f concat -safe 0 -i clips.txt -c copy combined.mp4
+    public static FFmpegJob createClipJob(String videoFilePath, String outputFilePath, int startOffsetSeconds, int durationSeconds, ProgressListener progressListener) {
         FFmpegBuilder builder = new FFmpegBuilder()
-                .setInput(pathToCliplist +"\\cliplist.txt")
+                .setInput(videoFilePath)
+                .overrideOutputFiles(true)
+                .setStartOffset(startOffsetSeconds, TimeUnit.SECONDS)
+                .addOutput(outputFilePath)
+                .setDuration(durationSeconds, TimeUnit.SECONDS)
+                .setVideoCodec("copy")
+                .setAudioCodec("copy")
+                .done();
+        return Clipper.executor.createJob(builder);
+    }
+
+    public static FFmpegJob createCombineJob(String clipListFilePath, String outputFilePath, ProgressListener progressListener) {
+        FFmpegBuilder builder = new FFmpegBuilder()
+                .setInput(clipListFilePath)
                 .overrideOutputFiles(true)
                 .addExtraArgs("-safe", "0")
                 .setFormat("concat")
-                .addOutput(SettingsModel.getSettings().getVideoOutputRootPath() + "\\combined.mp4")
+                .addOutput(outputFilePath)
                 .setVideoCodec("copy")
                 .setAudioCodec("copy")
-                .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
                 .done();
-        Clipper.instance.executor.createJob(builder).run();
-        System.out.println("Combined clip done");
+        return Clipper.executor.createJob(builder, progressListener);
     }
 
-    public FFmpegProbeResult probe(String path) throws IOException {
-        return ffprobe.probe(path);
+    public static FFmpegProbeResult probe(String path) throws IOException {
+        return probe.probe(path);
     }
 }

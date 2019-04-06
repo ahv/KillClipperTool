@@ -25,7 +25,7 @@ public class Video {
             System.out.println("Could not find file: " + file.getAbsolutePath());
         }
         try {
-            format = Clipper.instance.probe(file.getAbsolutePath()).getFormat();
+            format = Clipper.probe(file.getAbsolutePath()).getFormat();
             // TODO: Accept other filename formats
             DateTimeFormatter fileNameDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss Z");
             OffsetDateTime offsetDateTime = OffsetDateTime.parse(FilenameUtils.removeExtension(file.getName()), fileNameDateFormat);

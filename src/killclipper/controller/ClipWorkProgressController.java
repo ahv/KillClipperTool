@@ -72,7 +72,7 @@ public class ClipWorkProgressController extends PopupViewController {
 
     void initializeClipElements() {
         List<Node> elements = new ArrayList<>();
-        for (ClipJob cj : clipWork.getClipJobs()) {
+        for (ClipWork.ClipJob cj : clipWork.getClipJobs()) {
             elements.add(createClipJobElement(cj));
         }
         elementBox.getChildren().addAll(elements);

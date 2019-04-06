@@ -12,13 +12,15 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public static Stage mainStage;
+    public static String workingDirectory = Paths.get("").toAbsolutePath().toString();
 
     @Override
     public void start(Stage stage) throws Exception {
-        System.out.println("Working directory: " + Paths.get("").toAbsolutePath().toString());
+        System.out.println("Working directory: " + workingDirectory);
+        Clipper.initialize();
         Main.mainStage = stage;
         // TODO: Automate versioning
-        stage.setTitle("Kill Clipper Tool v0.7.00");
+        stage.setTitle("Kill Clipper Tool v0.7.01");
         changeView("MainView");
         stage.show();
     }

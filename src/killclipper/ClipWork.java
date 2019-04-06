@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleDoubleProperty;
+import killclipper.model.MediaModel;
 import killclipper.model.SettingsModel;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
 
@@ -32,45 +32,23 @@ public class ClipWork {
             allClipJobsDoneEvent();
         }
     };
-
     private interface ClipJobDoneLambda {
-
         abstract void execute(ClipJob clipJob);
     }
 
-    private void startCombinedClipJob() {
-        System.out.println("Starting combined clip job");
-        try {
-            FileWriter fileWriter = new FileWriter("cliplist.txt");
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            String clipOutputPath = SettingsModel.getSettings().getVideoOutputRootPath();
-            // TODO: Support for other fileformats
-            String fileFormat = "mp4";
-            for (ClipJob cj : clipJobs) {
-                printWriter.printf("file '%s\\%s.%s'\n", clipOutputPath, cj.clipName, fileFormat);
-            }
-            printWriter.close();
-            fileWriter.close();
-            Clipper.Combine(Paths.get("").toAbsolutePath().toString());
-            Files.deleteIfExists(Paths.get("", "cliplist.txt"));
-            
-        } catch (IOException ex) {
-            Logger.getLogger(ClipWork.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void allClipJobsDoneEvent() {
-        if (SettingsModel.getSettings().isCreateCombinedVideo()) {
-            startCombinedClipJob();
-        } else {
-            // TODO: onClipWorkDone
-        }
+        System.out.println("ALL CLIP JOBS DONE!");
     }
 
-    public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) {
+    public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) throws IOException {
         this.video = video;
         clipSpans = createClipSpans(killboard, preceedingSeconds, trailingSeconds);
-        clipJobs = createClipJobs(clipSpans);
+        clipJobs = new ArrayList<>();
+        clipJobs.addAll(createClipJobs(clipSpans));
+        if (SettingsModel.getSettings().isCreateCombinedVideo()) {
+            CombineClipJob combineJob = createCombineJob();
+            clipJobs.add(combineJob);
+        }
     }
 
     private ArrayList<Span> createClipSpans(Killboard killboard, int preceedingSeconds, int trailingSeconds) {
@@ -99,7 +77,7 @@ public class ClipWork {
     }
 
     public List<ClipJob> getClipJobs() {
-        return clipJobs;
+        return (List<ClipJob>) clipJobs;
     }
 
     public void startWork() {
@@ -113,14 +91,18 @@ public class ClipWork {
         queuedClipJobs.pop().start(clipJobDoneFunction);
     }
 
-    private ArrayList<ClipJob> createClipJobs(ArrayList<Span> spans) {
-        ArrayList<ClipJob> jobs = new ArrayList<>();
+    private ArrayList<SingleClipJob> createClipJobs(ArrayList<Span> spans) {
+        ArrayList<SingleClipJob> jobs = new ArrayList<>();
         int i = 0;
         for (Span span : spans) {
-            jobs.add(new ClipJob("clip_" + i, (int) (span.getStartTimestamp() - video.getStartTimestamp()), (int) span.getDurationSeconds()));
+            jobs.add(new SingleClipJob("clip_" + i, span));
             i++;
         }
         return jobs;
+    }
+    
+    private CombineClipJob createCombineJob() throws IOException {
+        return new CombineClipJob("combined");
     }
 
     public class Span {
@@ -150,33 +132,16 @@ public class ClipWork {
             return String.format("Span: %s -- %s (%s)", startTimeStamp, endTimeStamp, getDurationSeconds());
         }
     }
+    
+    public abstract class ClipJob {
 
-    public class ClipJob {
+        String clipName;
+        SimpleDoubleProperty progress;
+        FFmpegJob job;
 
-        private final String clipName;
-        private final int clipDurationSeconds;
-        private final FFmpegJob job;
-        private final SimpleDoubleProperty progress;
-
-        public ClipJob(String outputClipName, int videoStartOffsetSeconds, int clipDurationSeconds) {
-            this.clipDurationSeconds = clipDurationSeconds;
-            this.clipName = outputClipName;
-            this.progress = new SimpleDoubleProperty(0.0);
-            FFmpegBuilder builder = new FFmpegBuilder()
-                    .setInput(video.path())
-                    .overrideOutputFiles(true)
-                    .setStartOffset(videoStartOffsetSeconds, TimeUnit.SECONDS)
-                    .addOutput(SettingsModel.getSettings().getVideoOutputRootPath() + "\\" + outputClipName + ".mp4")
-                    .setDuration(clipDurationSeconds, TimeUnit.SECONDS)
-                    .setVideoCodec("copy")
-                    .setAudioCodec("copy")
-                    //.setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
-                    .done();
-            job = Clipper.instance.executor.createJob(builder, (Progress prgrs) -> {
-                long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
-                double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
-                setProgress(percentage);
-            });
+        private ClipJob(String clipName) {
+            this.clipName = clipName;
+            this.progress = new SimpleDoubleProperty(0);
         }
 
         public double getProgress() {
@@ -194,17 +159,80 @@ public class ClipWork {
         public String getClipName() {
             return clipName;
         }
-
-        public int getClipDurationSeconds() {
-            return clipDurationSeconds;
-        }
+        
+        public abstract int getClipDurationSeconds();
 
         public void start(ClipJobDoneLambda expression) {
             new Thread(() -> {
                 job.run();
-                setProgress(1.0);
                 expression.execute(this);
             }).start();
+        }
+    }
+
+    public class SingleClipJob extends ClipJob {
+
+        private final int clipDurationSeconds;
+
+        public SingleClipJob(String clipName, Span span) {
+            super(clipName);
+            int videoStartOffsetSeconds = (int) (span.getStartTimestamp() - MediaModel.getVideo().getStartTimestamp());
+            this.clipDurationSeconds = (int) span.getDurationSeconds();
+            // TODO: Support for other file formats
+            String outputFilePath = SettingsModel.getSettings().getVideoOutputRootPath() + "\\" + clipName + ".mp4";
+            this.job = Clipper.createClipJob(MediaModel.getVideo().path(), outputFilePath, videoStartOffsetSeconds, clipDurationSeconds, (Progress prgrs) -> {
+                if (prgrs.isEnd()) {
+                    setProgress(1);
+                } else {
+                    long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
+                    double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
+                    setProgress(percentage);
+                }
+            });
+        }
+        
+        @Override
+        public int getClipDurationSeconds() {
+            return clipDurationSeconds;
+        }
+    }
+
+    private class CombineClipJob extends ClipJob {
+        
+        private final int clipDurationSeconds;
+
+        // WARNING: Can cause some strange output if not used correctly
+        // AKA first create normal span-based clips and then create the combined clip once after that
+        public CombineClipJob(String clipName) throws IOException {
+            super(clipName);
+            FileWriter fileWriter = new FileWriter("cliplist.txt");
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            String clipOutputPath = SettingsModel.getSettings().getVideoOutputRootPath();
+            // TODO: Support for other fileformats
+            String fileFormat = "mp4";
+            int ts = 0;
+            for (ClipJob cj : clipJobs) {
+                printWriter.printf("file '%s\\%s.%s'\n", clipOutputPath, cj.clipName, fileFormat);
+                ts += ((SingleClipJob) cj).getClipDurationSeconds();
+            }
+            clipDurationSeconds = ts;
+            printWriter.close();
+            fileWriter.close();
+            this.job = Clipper.createCombineJob(Main.workingDirectory + "\\cliplist.txt", clipOutputPath, (prgrs) -> {
+                if (prgrs.isEnd()) {
+                    setProgress(1);
+                } else {
+                    long elapsedSeconds = TimeUnit.SECONDS.convert(prgrs.out_time_ns, TimeUnit.NANOSECONDS);
+                    double percentage = ((double) elapsedSeconds / (double) clipDurationSeconds);
+                    setProgress(percentage);
+                }
+            });
+            Files.deleteIfExists(Paths.get("", "cliplist.txt"));
+        }
+
+        @Override
+        public int getClipDurationSeconds() {
+            return this.clipDurationSeconds;
         }
     }
 }
