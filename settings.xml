@@ -38,8 +38,8 @@
         </character>
     </characters>
     <createCombinedVideo>true</createCombinedVideo>
-    <preceedingSeconds>5</preceedingSeconds>
-    <trailingSeconds>5</trailingSeconds>
+    <preceedingSeconds>8</preceedingSeconds>
+    <trailingSeconds>7</trailingSeconds>
     <videoOutputRootPath>C:\Users\henry\Desktop\60</videoOutputRootPath>
-    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
+    <videoSourceRootPath>F:\ps2-recordings\30min run</videoSourceRootPath>
 </settings>

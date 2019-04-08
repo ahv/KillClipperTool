@@ -1,6 +1,7 @@
 package killclipper.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -16,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import killclipper.ClipWork;
 import killclipper.ClipWork.ClipJob;
+import killclipper.Clipper;
 import killclipper.Main;
 import killclipper.model.ClipWorkModel;
 import killclipper.model.SettingsModel;
@@ -58,9 +60,9 @@ public class ClipWorkProgressController extends PopupViewController {
     }
 
     @FXML
-    void handleStartAction(ActionEvent event) {
+    void handleStartAction(ActionEvent event) throws IOException {
         startButton.setDisable(true);
-        clipWork.startWork();
+        Clipper.startWork(clipWork.getClipJobs());
     }
 
     @FXML

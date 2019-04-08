@@ -187,6 +187,7 @@ public class SyncController implements Initializable {
             return;
         }
         SettingsModel.getSettings().setVideoOutputRootPath(dir.getAbsolutePath());
+        SettingsModel.getSettings().save();
         ClipWorkModel.generate(killboard, MediaModel.getVideo());
         Main.popupView("ClipWorkProgressView");
     }

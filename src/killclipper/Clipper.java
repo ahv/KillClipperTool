@@ -1,8 +1,14 @@
 package killclipper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import killclipper.ClipWork.ClipJob;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
@@ -17,6 +23,7 @@ public class Clipper {
     private static FFmpeg ffmpeg;
     private static FFprobe probe;
     private static FFmpegExecutor executor;
+    private final static ConcurrentLinkedDeque<ClipWork.ClipJob> queuedClipJobs = new ConcurrentLinkedDeque<>();
 
     public static void initialize() throws IOException {
         ffmpeg = new FFmpeg(STATIC_FFMPEG_PATH + "\\ffmpeg.exe");
@@ -54,4 +61,43 @@ public class Clipper {
     public static FFmpegProbeResult probe(String path) throws IOException {
         return probe.probe(path);
     }
+
+    public static void startWork(ArrayList<ClipJob> clipJobs) throws IOException {
+        for (ClipWork.ClipJob cj : clipJobs) {
+            queuedClipJobs.add(cj);
+        }
+        startNextClipJob();
+    }
+
+    // TODO: What is this try-catch mess lul
+    private static void startNextClipJob() throws IOException {
+        try {
+            queuedClipJobs.pop().start((ClipWork.ClipJob doneJob) -> {
+                queuedClipJobs.remove(doneJob);
+                if (queuedClipJobs.size() > 0) {
+                    try {
+                        startNextClipJob();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Clipper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+
+                    try {
+                        Files.deleteIfExists(Paths.get("", "cliplist.txt"));
+                    } catch (IOException ex) {
+                        Logger.getLogger(Clipper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    onAllClipJobsDone();
+
+                }
+            });
+        } catch (IOException ex) {
+            Logger.getLogger(Clipper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private static void onAllClipJobsDone() {
+        System.out.println("ALL CLIP JOBS DONE!");
+    }
+
 }
