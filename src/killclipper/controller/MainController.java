@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -34,11 +35,10 @@ public class MainController implements Initializable {
     private ObservableList<Settings.PlayerCharacter> characterList;
     @FXML private TableColumn<Settings.PlayerCharacter, String> characterTableNameColumn;
     @FXML private TableColumn<Settings.PlayerCharacter, String> characterTableIdColumn;
-    @FXML private TableColumn<Settings.PlayerCharacter, Boolean> characterTableEnabledColumn;
+    @FXML private TableColumn<Settings.PlayerCharacter, CheckBox> characterTableEnabledColumn;
     @FXML private TextField addCharacterInputField;
     @FXML private Button addCharacterButton;
     @FXML private Button removeCharacterButton;
-    @FXML private Button enableCharacterButton;
     
     @FXML private Button openFileButton;
     @FXML private MediaView videoFilePreview;
@@ -68,15 +68,6 @@ public class MainController implements Initializable {
     }
     
     @FXML
-    private void handleEnableCharacterAction(ActionEvent event) {
-        int index = characterTable.getSelectionModel().getSelectedIndex();
-        if (index < 0) return;
-        characterList.get(index).setEnabled(!characterList.get(index).isEnabled());
-        SettingsModel.getSettings().save();
-        characterTable.refresh();
-    }
-    
-    @FXML
     private void handleOpenFileAction(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open video");
@@ -92,9 +83,9 @@ public class MainController implements Initializable {
         MediaModel.setMedia(media);
         MediaPlayer mp = new MediaPlayer(media);
         videoFilePreview.setMediaPlayer(mp);
-        mp.seek(Duration.seconds(30));
         mp.volumeProperty().set(0);
         mp.play();
+        mp.seek(Duration.seconds(60));
         syncViewButton.setDisable(false);
     }
     
@@ -114,7 +105,7 @@ public class MainController implements Initializable {
         characterList = FXCollections.observableList(SettingsModel.getSettings().getCharacters());
         characterTableNameColumn.setCellValueFactory(new PropertyValueFactory("name"));
         characterTableIdColumn.setCellValueFactory(new PropertyValueFactory("id"));
-        characterTableEnabledColumn.setCellValueFactory(new PropertyValueFactory("enabled"));
+        characterTableEnabledColumn.setCellValueFactory(new PropertyValueFactory("enabledCheckBox"));
         characterTable.getColumns().setAll(characterTableNameColumn, characterTableIdColumn, characterTableEnabledColumn);
         characterTable.setItems(characterList);
     }

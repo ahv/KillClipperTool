@@ -18,11 +18,6 @@
         </character>
         <character>
             <enabled>true</enabled>
-            <id>8271049455860263025</id>
-            <name>HenryVTanner</name>
-        </character>
-        <character>
-            <enabled>true</enabled>
             <id>5428823203443579041</id>
             <name>HenryVanTern</name>
         </character>
@@ -36,10 +31,15 @@
             <id>5428851341651662641</id>
             <name>LingLingXiaoPing500</name>
         </character>
+        <character>
+            <enabled>true</enabled>
+            <id>8271049455860263025</id>
+            <name>HenryVTanner</name>
+        </character>
     </characters>
     <createCombinedVideo>true</createCombinedVideo>
-    <preceedingSeconds>8</preceedingSeconds>
-    <trailingSeconds>4</trailingSeconds>
-    <videoOutputRootPath>C:\Users\henry\Desktop\cc</videoOutputRootPath>
-    <videoSourceRootPath>F:\ps2-recordings\30 min run</videoSourceRootPath>
+    <preceedingSeconds>5</preceedingSeconds>
+    <trailingSeconds>5</trailingSeconds>
+    <videoOutputRootPath>C:\Users\henry\Desktop\60</videoOutputRootPath>
+    <videoSourceRootPath>F:\ps2-recordings</videoSourceRootPath>
 </settings>

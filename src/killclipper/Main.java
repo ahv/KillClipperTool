@@ -25,14 +25,18 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void popupView(String view) throws IOException {
+    public static void popupView(String view, boolean resizable) throws IOException {
         System.out.println("Spawning popup: " + view);
         Stage stage = new Stage();
-        stage.setResizable(false);
+        stage.setResizable(resizable);
         URL resource = Main.class.getResource("view/" + view + ".fxml");
         Parent root = FXMLLoader.load(resource);
         stage.setScene(new Scene(root));
         stage.show();
+    }
+
+    public static void popupView(String view) throws IOException {
+        popupView(view, false);
     }
 
     public static void changeView(String view) throws IOException {

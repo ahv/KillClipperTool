@@ -35,9 +35,18 @@ public class ClipWork {
     private interface ClipJobDoneLambda {
         abstract void execute(ClipJob clipJob);
     }
+    
+        private void startNextClipJob() {
+        queuedClipJobs.pop().start(clipJobDoneFunction);
+    }
 
     private void allClipJobsDoneEvent() {
         System.out.println("ALL CLIP JOBS DONE!");
+        try {
+            Files.deleteIfExists(Paths.get("", "cliplist.txt"));
+        } catch (IOException ex) {
+            Logger.getLogger(ClipWork.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public ClipWork(Killboard killboard, Video video, int preceedingSeconds, int trailingSeconds) throws IOException {
@@ -87,9 +96,7 @@ public class ClipWork {
         startNextClipJob();
     }
 
-    private void startNextClipJob() {
-        queuedClipJobs.pop().start(clipJobDoneFunction);
-    }
+
 
     private ArrayList<SingleClipJob> createClipJobs(ArrayList<Span> spans) {
         ArrayList<SingleClipJob> jobs = new ArrayList<>();
@@ -227,7 +234,6 @@ public class ClipWork {
                     setProgress(percentage);
                 }
             });
-            //Files.deleteIfExists(Paths.get("", "cliplist.txt"));
         }
 
         @Override

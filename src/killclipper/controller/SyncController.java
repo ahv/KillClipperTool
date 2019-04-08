@@ -73,6 +73,9 @@ public class SyncController implements Initializable {
     private Label syncTimeLabel;
 
     @FXML
+    private Button killboardButton;
+
+    @FXML
     private Button settingsButton;
     @FXML
     private Button generateButton;
@@ -153,8 +156,16 @@ public class SyncController implements Initializable {
         syncTimeLabel.setText("Sync: " + correction + " seconds");
         MediaModel.getVideo().correctTimeBy(correction);
 
-        // TODO: Redraw killtimeline also on window resize
+        // TODO: Rework: We don't need the entire span, only the few (if any) missing at the end
+        // also drop the kills from the beginning that aren't in the span anymore
+        fetchKillboard();
+
         redrawKillTimeline();
+    }
+
+    @FXML
+    void handleShowKillboardAction(ActionEvent event) throws IOException {
+        Main.popupView("KillboardView", true);
     }
 
     @FXML
@@ -166,7 +177,11 @@ public class SyncController implements Initializable {
     void handleGenerateClipworkAction(ActionEvent event) throws IOException {
         mediaPlayer.pause();
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File(SettingsModel.getSettings().getVideoOutputRootPath()));
+        File previouslyUsedDirectory = new File(SettingsModel.getSettings().getVideoOutputRootPath());
+        System.out.println("Previously used directory for output: " + previouslyUsedDirectory.getAbsolutePath());
+        if (previouslyUsedDirectory.exists()) {
+            directoryChooser.setInitialDirectory(previouslyUsedDirectory);
+        }
         File dir = directoryChooser.showDialog(Main.mainStage);
         if (dir == null) {
             return;
@@ -188,12 +203,11 @@ public class SyncController implements Initializable {
         System.out.println("Initializing SyncViewController.");
         Main.mainStage.setResizable(true);
 
-        // TODO: Refactor into MainController, implement threading, error messages
         fetchKillboard();
 
         initializeMediaPlayer();
 
-        // TODO: Listeners probably need to be removed on view switch
+        // TODO: Listeners probably need to be removed on view switch (?)
         ChangeListener<Number> stageSizeListener = (ob, ov, nv)
                 -> redrawKillTimeline();
         Main.mainStage.widthProperty().addListener(stageSizeListener);
@@ -233,6 +247,9 @@ public class SyncController implements Initializable {
         long endTimestamp = video.getEndTimeStamp();
         killboard = new Killboard();
         for (Settings.PlayerCharacter pc : SettingsModel.getSettings().getCharacters()) {
+            if (!pc.isEnabled()) {
+                continue; // Skip disabled characters
+            }
             killboard.append(ApiCaller.getKillboard(pc.getId(), startTimestamp, endTimestamp));
         }
     }

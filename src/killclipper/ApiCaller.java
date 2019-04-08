@@ -16,9 +16,9 @@ public class ApiCaller {
     private final static Gson GSON = new GsonBuilder().create();
     
     private class Query {
-        //private final static String KILLBOARD = "characters_event/?type=KILL,DEATH&c:limit=200&after=%s&before=%s&character_id=%s";
-        // TODO: c:limit=200 will cause trouble in longer/busier videos
-        private final static String KILLBOARD_WITH_NAMES = "characters_event/?type=KILL,DEATH&c:limit=200&c:resolve=character_name(name.first)&after=%s&before=%s&character_id=%s";
+        //private final static String KILLBOARD = "characters_event/?type=KILL,DEATH&c:limit=1000&after=%s&before=%s&character_id=%s";
+        // TODO: c:limit=1000 might cause cases where the entire killboard won't be gotten
+        private final static String KILLBOARD_WITH_NAMES = "characters_event/?type=KILL,DEATH&c:limit=1000&c:resolve=character_name(name.first)&after=%s&before=%s&character_id=%s";
         private final static String ID_FOR_NAME = "character/?name.first_lower=%s&c:show=character_id";
         private final static String NAME_FOR_ID = "character/?character_id=%s&c:show=name.first";
     }

@@ -10,8 +10,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.CheckBox;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -19,6 +21,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement
 public class Settings {
@@ -99,17 +102,25 @@ public class Settings {
         private SimpleStringProperty name;
         private SimpleStringProperty id;
         private SimpleBooleanProperty enabled;
+        @XmlTransient
+        private CheckBox enabledCheckBox;
 
         public PlayerCharacter(String name, String id) {
             this.name = new SimpleStringProperty(name);
             this.id = new SimpleStringProperty(id);
             this.enabled = new SimpleBooleanProperty(true);
+            this.enabledCheckBox = new CheckBox();
+            this.enabledCheckBox.setSelected(true);
+            Bindings.bindBidirectional(enabled, enabledCheckBox.selectedProperty());
         }
 
         public PlayerCharacter() {
             this.name = new SimpleStringProperty("undefined");
             this.id = new SimpleStringProperty("0");
             this.enabled = new SimpleBooleanProperty(false);
+            this.enabledCheckBox = new CheckBox();
+            this.enabledCheckBox.setSelected(false);
+            Bindings.bindBidirectional(enabled, enabledCheckBox.selectedProperty());
         }
 
         public String getName() {
@@ -134,6 +145,10 @@ public class Settings {
 
         public void setEnabled(boolean enabled) {
             this.enabled.set(enabled);
+        }
+        
+        public CheckBox getEnabledCheckBox() {
+            return enabledCheckBox;
         }
 
         @Override
