@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import javafx.beans.property.SimpleDoubleProperty;
 import killclipper.ClipWork.ClipJob;
 import killclipper.model.MediaModel;
@@ -13,7 +13,6 @@ import killclipper.model.SettingsModel;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
 
-// TODO: This class has gotten a little bloated, break it up
 public class ClipWork {
 
     private final Video video;
@@ -54,11 +53,6 @@ public class ClipWork {
         return clipJobs;
     }
 
-    public interface ClipJobDoneLambda {
-
-        abstract void execute(ClipWork.ClipJob clipJob);
-    }
-
     public abstract class ClipJob {
 
         String clipName;
@@ -78,7 +72,7 @@ public class ClipWork {
             return progress;
         }
 
-        public void setProgress(double percent) {
+        void setProgress(double percent) {
             progress.set(percent);
         }
 
@@ -87,11 +81,11 @@ public class ClipWork {
         }
 
         public abstract int getClipDurationSeconds();
-
-        public void start(ClipJobDoneLambda expression) throws IOException {
+        
+        public void start(Consumer<ClipJob> onDone) throws IOException {
             new Thread(() -> {
                 job.run();
-                expression.execute(this);
+                onDone.accept(this);
             }).start();
         }
     }
@@ -106,7 +100,7 @@ public class ClipWork {
             this.clipDurationSeconds = (int) span.getDurationSeconds();
             // TODO: Support for other file formats
             String outputFilePath = SettingsModel.getSettings().getVideoOutputRootPath() + "\\" + clipName + ".mp4";
-            this.job = Clipper.createClipJob(MediaModel.getVideo().path(), outputFilePath, videoStartOffsetSeconds, clipDurationSeconds, (Progress prgrs) -> {
+            this.job = Clipper.createClipJob(video.path(), outputFilePath, videoStartOffsetSeconds, clipDurationSeconds, (Progress prgrs) -> {
                 if (prgrs.isEnd()) {
                     setProgress(1);
                 } else {

@@ -20,7 +20,6 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
 import killclipper.ApiCaller;
 import killclipper.Main;
 import killclipper.Settings;
@@ -85,7 +84,6 @@ public class MainController implements Initializable {
         videoFilePreview.setMediaPlayer(mp);
         mp.volumeProperty().set(0);
         mp.play();
-        mp.seek(Duration.seconds(60));
         syncViewButton.setDisable(false);
     }
     
@@ -96,7 +94,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("Initializing MainViewController.");
         Main.mainStage.setResizable(false);
         initializeCharactersTable();
     }

@@ -62,7 +62,13 @@ public class ClipWorkProgressController extends PopupViewController {
     @FXML
     void handleStartAction(ActionEvent event) throws IOException {
         startButton.setDisable(true);
-        Clipper.startWork(clipWork.getClipJobs());
+        Clipper.startWork(clipWork, () -> {
+            onWorkDone();
+        });
+    }
+    
+    private void onWorkDone() {
+        System.out.println("We did it reddit");
     }
 
     @FXML
@@ -86,7 +92,7 @@ public class ClipWorkProgressController extends PopupViewController {
     }
 
     private Pane createClipJobElement(ClipJob clipJob) {
-        // TODO: Set widths based on parent
+        // TODO: Set element widths based on parent
         double parentWidth = elementBox.getWidth();
         Label clipNameLabel = new Label(clipJob.getClipName());
         clipNameLabel.prefWidth(90);
