@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -43,6 +46,7 @@ public class ClipWorkProgressController extends PopupViewController {
     @FXML
     void handleCancelAction(ActionEvent event) {
         close(event);
+        Clipper.abortWork();
     }
 
     // TODO: Path is already written into the ClipJobs at ClipWork object creation (which happens in the SyncView)
@@ -63,12 +67,15 @@ public class ClipWorkProgressController extends PopupViewController {
     void handleStartAction(ActionEvent event) throws IOException {
         startButton.setDisable(true);
         Clipper.startWork(clipWork, () -> {
-            onWorkDone();
+            Platform.runLater(() -> {
+                close(event);
+                try {
+                    Main.popupView("ClipWorkDoneDialogView");
+                } catch (IOException ex) {
+                    Logger.getLogger(ClipWorkProgressController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
         });
-    }
-    
-    private void onWorkDone() {
-        System.out.println("We did it reddit");
     }
 
     @FXML
@@ -84,7 +91,7 @@ public class ClipWorkProgressController extends PopupViewController {
             elements.add(createClipJobElement(cj));
         }
         elementBox.getChildren().addAll(elements);
-        
+
         // Hax to get the scroll pane to show the last element
         Region r = new Region();
         r.setMinHeight(20);

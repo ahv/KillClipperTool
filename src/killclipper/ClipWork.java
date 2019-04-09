@@ -81,7 +81,7 @@ public class ClipWork {
         }
 
         public abstract int getClipDurationSeconds();
-        
+
         public void start(Consumer<ClipJob> onDone) throws IOException {
             new Thread(() -> {
                 job.run();

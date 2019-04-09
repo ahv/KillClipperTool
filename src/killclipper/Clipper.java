@@ -90,4 +90,9 @@ public class Clipper {
         Files.deleteIfExists(Paths.get("", "cliplist.txt"));
         onDoneCallback.run();
     }
+
+    // TODO: Needs a better solution, right now aborting makes it look like all jobs were done
+    public static void abortWork() {
+        QUEUED_CLIP_JOBS.clear();
+    }
 }
