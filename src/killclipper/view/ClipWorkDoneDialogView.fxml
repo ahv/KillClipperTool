@@ -2,12 +2,21 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="68.0" prefWidth="201.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="killclipper.controller.ClipWorkDoneDialogController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="441.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="killclipper.controller.ClipWorkDoneDialogController">
    <children>
-      <Button fx:id="okButton" layoutX="86.0" layoutY="111.0" mnemonicParsing="false" onAction="#okAction" text="Ok" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="86.0" AnchorPane.rightAnchor="85.0" />
-      <Label alignment="TOP_CENTER" layoutX="9.0" layoutY="14.0" prefHeight="91.0" prefWidth="182.0" text="Clip work done" AnchorPane.bottomAnchor="31.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="14.0" />
+      <Button fx:id="okButton" layoutX="78.0" layoutY="225.0" mnemonicParsing="false" onAction="#okAction" prefHeight="22.0" prefWidth="61.0" text="Ok" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="78.0" />
+      <Label alignment="TOP_CENTER" layoutX="9.0" layoutY="14.0" prefHeight="22.0" prefWidth="183.0" text="Clips done!" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="14.0" />
+      <Label alignment="TOP_CENTER" layoutX="11.0" layoutY="36.0" prefHeight="179.0" prefWidth="189.0" text="Hey if you have any feature requests, bug reports, or otherwise need help with the program hit me up on discord. Also if this piece of software made your life any easier, please consider donating your hard earned doubloons at &lt;url&gt;." wrapText="true" AnchorPane.leftAnchor="11.0" AnchorPane.topAnchor="36.0" />
+      <ImageView fitHeight="200.0" fitWidth="200.0" layoutX="227.0" layoutY="26.0">
+         <image>
+            <Image url="@../../../logo-512.png" />
+         </image>
+      </ImageView>
+      <Separator layoutX="205.0" layoutY="26.0" orientation="VERTICAL" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="205.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>

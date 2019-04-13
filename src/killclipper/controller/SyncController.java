@@ -159,7 +159,9 @@ public class SyncController implements Initializable {
         // TODO: Rework: We don't need the entire span, only the few (if any) missing at the end
         // also drop the kills from the beginning that aren't in the span anymore
         fetchKillboard();
-
+        // TODO: TEMPORARY, see definition VVV
+        //filterKillboard();
+        
         redrawKillTimeline();
     }
 
@@ -205,6 +207,8 @@ public class SyncController implements Initializable {
         Main.mainStage.setResizable(true);
 
         fetchKillboard();
+        // TODO: TEMPORARY, REFACTOR ASAP
+        //filterKillboard();
 
         initializeMediaPlayer();
 
@@ -254,6 +258,17 @@ public class SyncController implements Initializable {
             killboard.append(ApiCaller.getKillboard(pc.getId(), startTimestamp, endTimestamp));
         }
     }
+    
+    // TODO: Introduce a new Filter class and refactor this out
+    private void filterKillboard() {
+        Killboard filteredKb = new Killboard();
+        killboard.entries.forEach((t) -> {
+            if (t.type.equals(Killboard.Entry.Type.KILLS)) {
+                filteredKb.entries.add(t);
+            }
+        });
+        killboard = filteredKb;
+    }
 
     // TODO: Rework: only reposition them on the x axis on resize instead of KILLING ALL CHILDREN D:
     // referece is kept in killTimelinePane.getChildren()!
@@ -267,7 +282,7 @@ public class SyncController implements Initializable {
 
             // TODO: Add more detail; orange lines for teamkills, solid lines for headshot kills, dotted lines for other kills etc.
             Line line = new Line(spot, 10, spot, 23);
-            line.setStyle(e.table_type.equals("kills") ? "-fx-stroke: green" : "-fx-stroke: red");
+            line.setStyle(e.type.equals("kills") ? "-fx-stroke: green" : "-fx-stroke: red");
 
             killTimelinePane.getChildren().add(line);
         }

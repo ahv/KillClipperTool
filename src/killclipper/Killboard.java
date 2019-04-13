@@ -66,7 +66,8 @@ public class Killboard implements Serializable {
         @SerializedName("character_loadout_id")
         int target_loadout_id;
         int attacker_loadout_id;
-        public String table_type;
+        @SerializedName("table_type")
+        public String type;
         
         // TODO: can be flattened with a custom type adapter
         public class Character {
@@ -80,6 +81,11 @@ public class Killboard implements Serializable {
         public int compareTo(Object o) {
             Entry e = (Entry) o;
             return timestamp > e.timestamp ? 1 : -1;
+        }
+        
+        public class Type {
+            public static final String KILLS = "kills";
+            public static final String DEATHS = "deaths";
         }
     }
 }
